@@ -1,0 +1,25 @@
+# Keil MDK 构建产物
+KeilProject/Output/
+KeilProject/Projects/MDK-ARM/build.log
+KeilProject/Projects/MDK-ARM/*.uvoptx
+KeilProject/Projects/MDK-ARM/*.uvguix.*
+KeilProject/Projects/MDK-ARM/EventRecorderStub.scvd
+KeilProject/Projects/MDK-ARM/DebugConfig/
+KeilProject/Projects/MDK-ARM/RTE/
+
+# 编译中间文件（兜底）
+*.o
+*.d
+*.axf
+*.map
+*.lst
+*.htm
+*.lnp
+*.sct
+*.hex
+*.dep
+*.iex
+
+# Windows
+Thumbs.db
+Desktop.ini
