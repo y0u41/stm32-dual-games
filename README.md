@@ -89,4 +89,4 @@ STM32双游戏机/
 
 - 底层驱动（`sys / delay / usart / lcd / touch` 等）基于**正点原子精英版例程**，版权归 **广州市星翼电子科技有限公司** 所有
 - 游戏应用层代码由 **DeepSeek Harness** 辅助生成，并经过人工修改完善
-- 本仓库 LICENSE 见根目录 LICENSE 文件（如无 LICENSE 文件则保留所有权利）
+- 本仓库以 **MIT 许可证** 发布，详见 [LICENSE](LICENSE)
