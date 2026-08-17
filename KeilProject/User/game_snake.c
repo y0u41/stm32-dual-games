@@ -10,6 +10,7 @@
 #include "./BSP/LCD/lcd.h"
 #include "./BSP/KEY/key.h"
 #include "./BSP/TOUCH/touch.h"
+#include "./BSP/24CXX/24cxx.h"
 #include "./SYSTEM/delay/delay.h"
 #include "ui.h"
 #include <stdio.h>
@@ -24,6 +25,8 @@
 #define SNAKE_TICK_MIN   100
 #define SNAKE_ACCEL_EVERY 5
 #define SNAKE_SWIPE      10      /* 滑动阈值px, 越小越灵敏 */
+#define SNAKE_BEST_ADDR  0x60    /* 最高分存储地址(避开触摸校准区40-52) */
+#define SNAKE_BEST_MAGIC 0xA5    /* 最高分有效标志 */
 
 #define SNAKE_CLS_BG     BLUE
 #define SNAKE_CLS_BODY   GREEN
@@ -55,6 +58,7 @@ static uint8_t  s_dir_locked;
 static uint8_t  s_food_cnt;
 static uint16_t s_acc;
 static uint32_t s_rnd;
+static uint16_t s_best;
 
 static uint8_t  s_tdown;
 static uint8_t  s_moved;
@@ -125,6 +129,26 @@ static void snake_reset(void)
     snake_place_food();
 }
 
+static void snake_best_load(void)
+{
+    if (at24cxx_read_one_byte(SNAKE_BEST_ADDR) == SNAKE_BEST_MAGIC)
+    {
+        s_best = ((uint16_t)at24cxx_read_one_byte(SNAKE_BEST_ADDR + 1) << 8) |
+                  (uint16_t)at24cxx_read_one_byte(SNAKE_BEST_ADDR + 2);
+    }
+    else
+    {
+        s_best = 0;
+    }
+}
+
+static void snake_best_save(void)
+{
+    at24cxx_write_one_byte(SNAKE_BEST_ADDR, SNAKE_BEST_MAGIC);
+    at24cxx_write_one_byte(SNAKE_BEST_ADDR + 1, (uint8_t)(s_best >> 8));
+    at24cxx_write_one_byte(SNAKE_BEST_ADDR + 2, (uint8_t)(s_best & 0xFF));
+}
+
 static void snake_draw_title(void)
 {
     lcd_fill(0, 50, lcddev.width - 1, SNAKE_MAP_Y - 1, SNAKE_CLS_BG);
@@ -144,7 +168,7 @@ static void snake_show_score(void)
 {
     char buf[24];
     lcd_fill(0, 0, 184, 49, SNAKE_CLS_BAR);
-    sprintf(buf, "SCORE:%u S:%u", (unsigned int)s_score, (unsigned int)s_tick);
+    sprintf(buf, "SCORE:%u BEST:%u", (unsigned int)s_score, (unsigned int)s_best);
     lcd_show_string(4, 12, 180, 16, 16, buf, WHITE);
 }
 
@@ -224,10 +248,12 @@ static void snake_step(void)
 static void snake_draw_over(void)
 {
     char buf[24];
+    if (s_score > s_best) { s_best = s_score; snake_best_save(); }
+    lcd_fill(0, 0, lcddev.width - 1, SNAKE_MAP_Y - 1, SNAKE_CLS_BG);
     lcd_fill(0, SNAKE_MAP_Y, lcddev.width - 1, lcddev.height - 1, SNAKE_CLS_BG);
-    ui_show_center(150, 24, "GAME OVER", RED);
-    sprintf(buf, "SCORE:%u", (unsigned int)s_score);
-    ui_show_center(210, 16, buf, WHITE);
+    ui_show_center(130, 24, "GAME OVER", RED);
+    sprintf(buf, "SCORE:%u  BEST:%u", (unsigned int)s_score, (unsigned int)s_best);
+    ui_show_center(190, 16, buf, WHITE);
     ui_draw_button(&s_btn_restart);
     ui_draw_button(&s_btn_overbk);
 }
@@ -297,6 +323,7 @@ void snake_init(void)
 {
     snake_srand(0x12345678u);
     snake_reset();
+    snake_best_load();
     snake_draw_field();
     snake_draw_bar();
     snake_draw_title();

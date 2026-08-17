@@ -1,5 +1,7 @@
 # STM32 掌上双游戏机（五子棋 + 贪吃蛇）
 
+![License](https://img.shields.io/badge/license-MIT-green) ![Language](https://img.shields.io/badge/language-C-555555) ![Platform](https://img.shields.io/badge/platform-STM32F103ZET6-blue) ![Build](https://img.shields.io/badge/build-0%20Error-brightgreen)
+
 基于 **正点原子精英版 STM32F103ZET6** 开发板和 **3.5 寸电阻触摸屏** 的掌上双游戏机：主菜单一键切换两个游戏，全程触摸操作，纯裸机实现，无操作系统依赖。
 
 ## 功能特性
@@ -11,6 +13,7 @@
   - 悔棋（最多 20 步）、重开、和棋判定
 - 🐍 **贪吃蛇**
   - 20×18 网格地图，吃食物加分，每 5 个加速 10%（300ms → 100ms/格）
+  - **最高分掉电保存**（24C02），顶部显示 SCORE / BEST
   - 触摸方向键控制（禁止 180° 掉头），物理按键备用（KEY0 左转 / KEY1 右转 / WK_UP 暂停）
   - 撞墙/撞身结束，GAME OVER 可重开
 - 📱 **电阻触摸**：首次上电四角校准，校准数据保存至板载 24C02，此后开机自动跳过
@@ -71,7 +74,7 @@ STM32双游戏机/
 "D:\MDK5.36\UV4\UV4.exe" -b KeilProject\Projects\MDK-ARM\atk_f103.uvprojx -j0
 ```
 
-**构建结果**：`0 Error`，`Code=44880 RO-data=13480 RW-data=324 ZI-data=2692`
+**构建结果**：`0 Error / 0 Warning`，`Code=45088 RO-data=13492 RW-data=324 ZI-data=2692`
 
 ## 使用说明
 

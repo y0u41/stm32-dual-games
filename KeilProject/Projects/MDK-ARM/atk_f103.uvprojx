@@ -337,7 +337,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>-Wno-unused-function</MiscControls>
               <Define>STM32F103xE</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\Drivers\CMSIS\Device\ST\STM32F1xx\Include;..\..\Drivers\CMSIS\Include;..\..\Drivers;..\..\User</IncludePath>
