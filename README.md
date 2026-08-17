@@ -40,6 +40,14 @@
 
 **按键**：KEY0=PE4、KEY1=PE3、KEY2=PE2、WK_UP=PA0（贪吃蛇备用控制）
 
+## 实拍照片
+
+正点原子精英版 STM32F103ZET6 + 3.5 寸电阻触摸屏实物运行效果：
+
+<img src="images/setup-1.jpg" width="320" alt="实拍照片 1">
+<img src="images/setup-2.jpg" width="320" alt="实拍照片 2">
+<img src="images/setup-3.jpg" width="320" alt="实拍照片 3">
+
 ## 目录结构
 
 ```
