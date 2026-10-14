@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  host-tests:
+    name: 主机侧游戏逻辑测试
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run snake logic tests
+        run: python tests/test_snake_logic.py
+
+  code-quality:
+    name: 代码质量检查
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for TODO/FIXME/HACK
+        run: |
+          echo "=== 检查未完成标记 ==="
+          FOUND=$(grep -rn "TODO\|FIXME\|HACK\|XXX" KeilProject/User/ --include="*.c" --include="*.h" 2>/dev/null || true)
+          if [ -n "$FOUND" ]; then
+            echo "发现未完成标记:"
+            echo "$FOUND"
+          else
+            echo "✅ 无未完成标记"
+          fi
+
+      - name: Check file encoding (UTF-8)
+        run: |
+          echo "=== 检查文件编码 ==="
+          FAIL=0
+          for f in KeilProject/User/*.c KeilProject/User/*.h; do
+            if [ -f "$f" ]; then
+              if ! file "$f" | grep -q "ASCII\|UTF-8"; then
+                echo "⚠️  非 UTF-8 编码: $f"
+                FAIL=1
+              fi
+            fi
+          done
+          if [ $FAIL -eq 0 ]; then
+            echo "✅ 所有源文件编码正常"
+          fi
+
+      - name: Check line endings
+        run: |
+          echo "=== 检查行尾符 ==="
+          FAIL=0
+          for f in KeilProject/User/*.c; do
+            if [ -f "$f" ] && file "$f" | grep -q "CRLF"; then
+              echo "⚠️  CRLF 行尾: $f"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 0 ]; then
+            echo "✅ 行尾符正常"
+          fi
+
+  build-check:
+    name: 构建状态检查
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify project structure
+        run: |
+          echo "=== 检查项目结构 ==="
+          REQUIRED=(
+            "KeilProject/User/main.c"
+            "KeilProject/User/game_snake.c"
+            "KeilProject/User/game_gomoku.c"
+            "KeilProject/User/menu.c"
+            "KeilProject/User/ui.c"
+            "tests/test_snake_logic.py"
+          )
+          MISSING=0
+          for f in "${REQUIRED[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "❌ 缺失: $f"
+              MISSING=1
+            fi
+          done
+          if [ $MISSING -eq 0 ]; then
+            echo "✅ 项目结构完整"
+          fi
+          exit $MISSING
+
+      - name: Count source lines
+        run: |
+          echo "=== 代码统计 ==="
+          LINES=$(find KeilProject/User -name "*.c" -o -name "*.h" | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
+          FILES=$(find KeilProject/User -name "*.c" -o -name "*.h" | wc -l)
+          echo "源文件: $FILES 个"
+          echo "总行数: $LINES"
