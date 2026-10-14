@@ -322,7 +322,8 @@ static uint8_t snake_touch(uint16_t *cx, uint16_t *cy)
 void snake_init(void)
 {
     /* 用 SysTick 计数做种子，替代硬编码 0x12345678，使每局食物位置不同 */
-    snake_srand(SysTick->VAL ^ (HAL_GetTick() << 16) ^ 0xDEADBEEFu);
+    /* 此工程无 HAL 库，直接读 SysTick->VAL（24 位递减计数器）+ 随机地址混合 */
+    snake_srand(SysTick->VAL ^ ((uint32_t)&SysTick->VAL) ^ 0xDEADBEEFu);
     snake_reset();
     snake_best_load();
     snake_draw_field();
