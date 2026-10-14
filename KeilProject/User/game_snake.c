@@ -221,7 +221,11 @@ static void snake_step(void)
 
     if (ate)
     {
-        s_len++;
+        /* 防越界：s_x/s_y 数组长度为 SNAKE_MAX_LEN，到达上限后不再增长(此时已极难吃到食物) */
+        if (s_len < SNAKE_MAX_LEN)
+        {
+            s_len++;
+        }
         s_score += 10;
         s_food_cnt++;
         if (s_food_cnt >= SNAKE_ACCEL_EVERY)
