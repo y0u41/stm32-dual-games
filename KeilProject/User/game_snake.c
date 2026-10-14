@@ -1,10 +1,10 @@
 /**
  * @file        game_snake.c
- * @author      Óî (DeepSeek)
+ * @author      ï¿½ï¿½ (DeepSeek)
  * @version     V1.1
  * @date        2026-08-16
- * @brief       Ì°³ÔÉß (ÊúÆÁ 320x480, ´¥Ãþ·½Ïò¼ü + µØÍ¼»¬¶¯×ªÏò)
- *   @note      20ÁÐ x 18ÐÐ, ¸ñ×Ó16px, µØÍ¼Çø y=72..360, ¿ØÖÆÇø y=368..480
+ * @brief       Ì°ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ 320x480, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ + ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½)
+ *   @note      20ï¿½ï¿½ x 18ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½16px, ï¿½ï¿½Í¼ï¿½ï¿½ y=72..360, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ y=368..480
  */
 #include "game_snake.h"
 #include "./BSP/LCD/lcd.h"
@@ -24,9 +24,9 @@
 #define SNAKE_TICK_INIT  300
 #define SNAKE_TICK_MIN   100
 #define SNAKE_ACCEL_EVERY 5
-#define SNAKE_SWIPE      10      /* »¬¶¯ãÐÖµpx, Ô½Ð¡Ô½ÁéÃô */
-#define SNAKE_BEST_ADDR  0x60    /* ×î¸ß·Ö´æ´¢µØÖ·(±Ü¿ª´¥ÃþÐ£×¼Çø40-52) */
-#define SNAKE_BEST_MAGIC 0xA5    /* ×î¸ß·ÖÓÐÐ§±êÖ¾ */
+#define SNAKE_SWIPE      10      /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµpx, Ô½Ð¡Ô½ï¿½ï¿½ï¿½ï¿½ */
+#define SNAKE_BEST_ADDR  0x60    /* ï¿½ï¿½ß·Ö´æ´¢ï¿½ï¿½Ö·(ï¿½Ü¿ï¿½ï¿½ï¿½ï¿½ï¿½Ð£×¼ï¿½ï¿½40-52) */
+#define SNAKE_BEST_MAGIC 0xA5    /* ï¿½ï¿½ß·ï¿½ï¿½ï¿½Ð§ï¿½ï¿½Ö¾ */
 
 #define SNAKE_CLS_BG     BLUE
 #define SNAKE_CLS_BODY   GREEN
@@ -258,7 +258,7 @@ static void snake_draw_over(void)
     ui_draw_button(&s_btn_overbk);
 }
 
-/* ´¥Ãþ: ¶Ì°´=µã»÷(·µ»Ø1), µØÍ¼»¬¶¯=×ªÏò */
+/* ï¿½ï¿½ï¿½ï¿½: ï¿½Ì°ï¿½=ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½1), ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½=×ªï¿½ï¿½ */
 static uint8_t snake_touch(uint16_t *cx, uint16_t *cy)
 {
     uint16_t x, y;
@@ -321,7 +321,8 @@ static uint8_t snake_touch(uint16_t *cx, uint16_t *cy)
 
 void snake_init(void)
 {
-    snake_srand(0x12345678u);
+    /* ç”¨ SysTick è®¡æ•°åšç§å­ï¼Œæ›¿ä»£ç¡¬ç¼–ç  0x12345678ï¼Œä½¿æ¯å±€é£Ÿç‰©ä½ç½®ä¸åŒ */
+    snake_srand(SysTick->VAL ^ (HAL_GetTick() << 16) ^ 0xDEADBEEFu);
     snake_reset();
     snake_best_load();
     snake_draw_field();
@@ -376,7 +377,7 @@ app_state_t snake_handle(void)
     }
 
     key = key_scan(0);
-    if (!s_over && !s_dir_locked)
+    if (!s_over && !s_pause && !s_dir_locked)
     {
         if (key == KEY0_PRES)
         {
@@ -393,7 +394,7 @@ app_state_t snake_handle(void)
             s_dir_locked = 1;
         }
     }
-    if (key == WKUP_PRES)
+    if (!s_over && key == WKUP_PRES)
     {
         s_pause = !s_pause;
         if (s_pause) ui_show_center(200, 24, "PAUSED", YELLOW);
